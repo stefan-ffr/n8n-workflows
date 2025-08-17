@@ -1,0 +1,120 @@
+{
+  "createdAt": "2025-08-06T13:59:24.729Z",
+  "updatedAt": "2025-08-06T15:03:33.000Z",
+  "id": "BAiOGRbeD45HwPgD",
+  "name": "My workflow 2",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "format": "resolved",
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        0
+      ],
+      "id": "06af1465-518e-4386-89af-636dd5242e12",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "ab6tvxmJBYxffJ5j",
+          "name": "N8N Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        304
+      ],
+      "id": "8f90b0ee-0051-47e0-9c4a-2410d3b32292",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        592,
+        0
+      ],
+      "id": "cfdd89fc-5850-4f1d-8a4a-edc5eb85ac0c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "boxes",
+        "inputDataFieldName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-tesseractjs.tesseractNode",
+      "typeVersion": 1,
+      "position": [
+        336,
+        0
+      ],
+      "id": "f045710f-0ad9-4c8d-a663-4c105aedc894",
+      "name": "Tesseract"
+    }
+  ],
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Tesseract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        []
+      ]
+    },
+    "Tesseract": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "1ec9ae67-f6af-48e0-ba1b-2ecd5e032cb8",
+  "triggerCount": 0,
+  "tags": []
+}

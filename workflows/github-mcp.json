@@ -1,0 +1,19 @@
+{
+  "createdAt": "2025-08-17T14:48:12.578Z",
+  "updatedAt": "2025-08-17T14:48:12.578Z",
+  "id": "kii5456cbTmCri5s",
+  "name": "Github MCP",
+  "active": false,
+  "isArchived": false,
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "7e9bd129-69f2-491f-85b4-cf4579ce658a",
+  "triggerCount": 0,
+  "tags": []
+}

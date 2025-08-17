@@ -1,0 +1,459 @@
+{
+  "createdAt": "2025-07-25T12:13:04.416Z",
+  "updatedAt": "2025-07-25T12:16:31.000Z",
+  "id": "HL2dw2hQREzMDxjj",
+  "name": "My workflow",
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "id": "f41bdb25-4119-440d-a5da-22e8b2310419",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract relevant email information\nconst emailData = {\n  subject: $json.subject || '',\n  body: $json.textPlain || $json.textHtml || '',\n  sender: $json.from || '',\n  date: $json.date || '',\n  messageId: $json.messageId || ''\n};\n\n// Clean up email body (remove signatures, quoted text)\nlet cleanBody = emailData.body;\nif (cleanBody) {\n  // Remove common signature patterns\n  cleanBody = cleanBody.split(/\\n\\s*--\\s*\\n/)[0];\n  cleanBody = cleanBody.split(/\\n\\s*Sent from/)[0];\n  cleanBody = cleanBody.split(/\\n\\s*Best regards/)[0];\n  cleanBody = cleanBody.split(/\\n\\s*Kind regards/)[0];\n  \n  // Remove HTML tags if present\n  cleanBody = cleanBody.replace(/<[^>]*>/g, ' ');\n  \n  // Limit length for AI processing\n  cleanBody = cleanBody.substring(0, 2000);\n}\n\n// Create unique ID for this suggestion\nconst suggestionId = emailData.messageId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10) + Date.now().toString().slice(-4);\n\nreturn {\n  ...emailData,\n  cleanBody: cleanBody,\n  suggestionId: suggestionId\n};"
+      },
+      "id": "f5cfea9f-7db8-4090-b227-da568cde0797",
+      "name": "Extract Email Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        },
+        "requestOptions": {}
+      },
+      "id": "7c5fb947-cc09-4b9e-9e80-faad2037800e",
+      "name": "AI Email Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        32
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "JEn1tEMKWXqgk0Y8",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "let suggestions = [];\n\ntry {\n  const aiResponse = $json.choices[0].message.content;\n  \n  // Try to extract JSON from AI response\n  const jsonMatch = aiResponse.match(/\\[[\\s\\S]*\\]/);\n  if (jsonMatch) {\n    suggestions = JSON.parse(jsonMatch[0]);\n  }\n  \n  // Filter suggestions by confidence threshold\n  suggestions = suggestions.filter(item => \n    item.confidence && item.confidence > 0.5 && item.title && item.startDate\n  );\n  \n  // Add metadata to each suggestion\n  suggestions = suggestions.map(item => ({\n    ...item,\n    originalEmail: {\n      subject: $('Extract Email Data').item.json.subject,\n      sender: $('Extract Email Data').item.json.sender,\n      messageId: $('Extract Email Data').item.json.messageId,\n      date: $('Extract Email Data').item.json.date\n    },\n    suggestionId: $('Extract Email Data').item.json.suggestionId\n  }));\n  \n} catch (error) {\n  console.log('Error parsing AI response:', error);\n  suggestions = [];\n}\n\n// Return each suggestion as separate item\nif (suggestions.length === 0) {\n  return [];\n}\n\nreturn suggestions.map(suggestion => ({ json: suggestion }));"
+      },
+      "id": "9b7f5402-ec23-489a-b8a2-372adc753a9b",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.title }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.startDate }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.confidence }}",
+              "operation": "largerEqual",
+              "value2": 0.6
+            }
+          ]
+        }
+      },
+      "id": "067e79e8-bf75-47d0-a529-ce5180a95ab8",
+      "name": "Filter Valid Suggestions",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "calendarEvent",
+              "value": "={{ JSON.stringify({\n  summary: $json.title,\n  description: `Suggested from email: ${$json.originalEmail.subject}\\n\\nFrom: ${$json.originalEmail.sender}\\n\\n${$json.description || 'No additional description'}`,\n  start: {\n    dateTime: `${$json.startDate}T${$json.startTime || '09:00'}:00`,\n    timeZone: 'UTC'\n  },\n  end: {\n    dateTime: `${$json.startDate}T${$json.endTime || ($json.startTime ? (parseInt($json.startTime.split(':')[0]) + 1).toString().padStart(2, '0') + ':' + $json.startTime.split(':')[1] : '10:00')}:00`,\n    timeZone: 'UTC'\n  },\n  location: $json.location || '',\n  attendees: ($json.attendees || []).map(email => ({email})),\n  reminders: {\n    useDefault: false,\n    overrides: [\n      {method: 'email', minutes: 1440},\n      {method: 'popup', minutes: 30}\n    ]\n  }\n}) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2fe7a34b-a733-4232-803d-3d72da217f9d",
+      "name": "Format Calendar Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Store the suggestion data for later retrieval\nconst suggestionData = {\n  suggestionId: $json.suggestionId,\n  calendarEvent: JSON.parse($json.calendarEvent),\n  originalData: $json,\n  timestamp: new Date().toISOString()\n};\n\n// In a real implementation, you'd store this in a database or memory\n// For now, we'll just pass it through\nconst storedData = {\n  stored: true,\n  suggestionId: $json.suggestionId,\n  ...suggestionData\n};\n\nreturn storedData;"
+      },
+      "id": "ee43b19c-dc84-42b4-925d-81b4e3c4bd8d",
+      "name": "Store Suggestion",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "🗓️ *Calendar Suggestion from Email*\\n\\n📧 *From:* {{ $json.originalData.originalEmail.sender }}\\n📝 *Subject:* {{ $json.originalData.originalEmail.subject }}\\n\\n📅 *Suggested Event:* {{ $json.originalData.title }}\\n🕐 *Date & Time:* {{ $json.originalData.startDate }}{{ $json.originalData.startTime ? ' at ' + $json.originalData.startTime : '' }}\\n{{ $json.originalData.endTime ? '⏰ *End Time:* ' + $json.originalData.endTime + '\\n' : '' }}{{ $json.originalData.location ? '📍 *Location:* ' + $json.originalData.location + '\\n' : '' }}📝 *Description:* {{ $json.originalData.description || 'Auto-detected from email' }}\\n🎯 *Confidence:* {{ Math.round($json.originalData.confidence * 100) }}%\\n\\nReply with:\\n✅ `/add_{{ $json.suggestionId }}` to add to calendar\\n❌ `/skip_{{ $json.suggestionId }}` to ignore",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "20dc8720-9666-4bba-9977-a95d24db7bdc",
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "webhookId": "9a1558bd-d105-45e5-befd-13865a699483"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-calendar-response",
+        "options": {}
+      },
+      "id": "c6bdf4f7-da1c-406f-8b3c-ac222c2b6382",
+      "name": "Telegram Response Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        320
+      ],
+      "webhookId": "03e0a5e3-8b79-4bcc-a973-bcf74ef75255"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $json.body || $json;\nconst message = body.message;\nconst text = message?.text || '';\nconst chatId = message?.chat?.id;\nconst userId = message?.from?.id;\n\n// Extract command and suggestion ID\nconst addMatch = text.match(/^\\/add_([a-zA-Z0-9]+)$/);\nconst skipMatch = text.match(/^\\/skip_([a-zA-Z0-9]+)$/);\n\nif (addMatch) {\n  return {\n    action: 'add',\n    suggestionId: addMatch[1],\n    chatId: chatId,\n    userId: userId,\n    command: text\n  };\n} else if (skipMatch) {\n  return {\n    action: 'skip',\n    suggestionId: skipMatch[1],\n    chatId: chatId,\n    userId: userId,\n    command: text\n  };\n} else {\n  return {\n    action: 'unknown',\n    chatId: chatId,\n    userId: userId,\n    text: text\n  };\n}"
+      },
+      "id": "5f410950-fbbe-4fa1-89cc-3401663b389e",
+      "name": "Process Telegram Command",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.action }}",
+              "value2": "add"
+            }
+          ]
+        }
+      },
+      "id": "89c86277-2dcf-4705-94af-5ac3b443daac",
+      "name": "Check Add Action",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.action }}",
+              "value2": "skip"
+            }
+          ]
+        }
+      },
+      "id": "c74b6c3e-0a28-4d59-9cd9-def2eb8afb45",
+      "name": "Check Skip Action",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// In a real implementation, retrieve stored suggestion data\n// For this demo, we'll create mock calendar event data\n// You would replace this with actual data retrieval\n\nconst mockCalendarEvent = {\n  summary: \"Demo Calendar Event\",\n  description: \"This would be retrieved from stored suggestion data\",\n  start: {\n    dateTime: new Date(Date.now() + 24*60*60*1000).toISOString(),\n    timeZone: \"UTC\"\n  },\n  end: {\n    dateTime: new Date(Date.now() + 25*60*60*1000).toISOString(),\n    timeZone: \"UTC\"\n  },\n  location: \"\",\n  attendees: [],\n  reminders: {\n    useDefault: false,\n    overrides: [\n      {method: \"email\", minutes: 1440},\n      {method: \"popup\", minutes: 30}\n    ]\n  }\n};\n\nreturn {\n  ...mockCalendarEvent,\n  suggestionId: $json.suggestionId,\n  chatId: $json.chatId\n};"
+      },
+      "id": "b058379d-cc83-46ad-a630-fa67972908a8",
+      "name": "Retrieve Calendar Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "start": "={{ $json.start }}",
+        "end": "={{ $json.end }}",
+        "additionalFields": {
+          "attendees": "={{ $json.attendees }}",
+          "location": "={{ $json.location }}"
+        }
+      },
+      "id": "f89c955d-d9ee-4703-9883-6433d76a98f4",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "✅ *Event Added to Calendar!*\\n\\nThe suggested event has been successfully added to your calendar.\\n\\n📅 Event: {{ $('Retrieve Calendar Data').item.json.summary }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "7ae319cc-de98-4492-bf0f-c763c90a8a3a",
+      "name": "Send Add Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        0,
+        240
+      ],
+      "webhookId": "99a6e960-7662-4f5c-ae3b-2a69890f4295"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "❌ *Suggestion Skipped*\\n\\nThe calendar suggestion has been ignored as requested.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "267b57ac-903c-41db-afb5-2e94c8fb4363",
+      "name": "Send Skip Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        512
+      ],
+      "webhookId": "01e580ac-d210-4229-90f4-afed8bcb70d2"
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Data": {
+      "main": [
+        [
+          {
+            "node": "AI Email Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Email Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Suggestions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Suggestions": {
+      "main": [
+        [
+          {
+            "node": "Format Calendar Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Calendar Data": {
+      "main": [
+        [
+          {
+            "node": "Store Suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Suggestion": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Response Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Telegram Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Telegram Command": {
+      "main": [
+        [
+          {
+            "node": "Check Add Action",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Skip Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Add Action": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Calendar Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Skip Action": {
+      "main": [
+        [
+          {
+            "node": "Send Skip Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Calendar Data": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Send Add Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "872a84f3-3fdc-4788-a80b-20a5c246c18b",
+  "triggerCount": 0,
+  "tags": []
+}

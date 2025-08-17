@@ -1,0 +1,366 @@
+{
+  "createdAt": "2025-08-06T10:34:55.656Z",
+  "updatedAt": "2025-08-07T11:48:11.000Z",
+  "id": "6iDkdn9EvGVUtmP2",
+  "name": "Gemeinde Kaiseraugst Mitteilungen",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.subject }}",
+              "operation": "contains",
+              "value2": "Gemeindenachrichten"
+            }
+          ]
+        }
+      },
+      "id": "637352d1-43e3-4b75-ab0f-e8d1a47c04b0",
+      "name": "Von Gemeinde?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// HTML-Content der ursprünglichen E-Mail extrahieren\nconst input = $input.first().json;\nlet emailHtml = input.textHtml || input.html || input.text || input.textPlain || '';\n\nconsole.log('Extrahiere Link direkt aus der E-Mail...');\n\n// Suche nach dem _rte/information Link in der E-Mail\nconst linkPattern = /href=\"(https:\\/\\/www\\.kaiseraugst\\.ch\\/_rte\\/information\\/\\d+)\"/i;\nconst match = emailHtml.match(linkPattern);\n\nif (match && match[1]) {\n  console.log('Link aus E-Mail gefunden:', match[1]);\n  return {\n    ratsmitteilungenUrl: match[1],  // Direkt die vollständige URL\n    emailSubject: input.subject,\n    emailFrom: input.from,\n    emailDate: input.date,\n    method: 'Direkt aus E-Mail extrahiert'\n  };\n}\n\nreturn {\n  ratsmitteilungenUrl: null,\n  error: 'Kein Link in E-Mail gefunden'\n};"
+      },
+      "id": "615eb5f8-a870-4acb-998e-e40cf5349fac",
+      "name": "Link extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1248,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.ratsmitteilungenUrl}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "180e8415-7124-458a-9057-4047d612f3a1",
+      "name": "Link gefunden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.ratsmitteilungenUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "8945dac1-4165-4bcb-b05d-98629af9898c",
+      "name": "Webseite laden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -800,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Suche nach dem _doc/ PDF-Download-Link auf der Seite\nconst html = $input.first().json.data;\n\nconsole.log('Suche nach _doc/ PDF-Download-Link...');\n\n// Verschiedene Muster für _doc/ Links\nconst docPatterns = [\n  // Direct _doc links\n  /href=\"([^\"]*\\/_doc\\/[^\"]*)/gi,\n  // Escaped _doc links  \n  /href=\\\\\"([^\"]*\\\\_doc\\\\_[^\"]*)\\\\/gi,\n  // Button onclick with _doc\n  /onclick=\"[^\"]*([^\"]*\\/_doc\\/[^\"]*)/gi,\n  // Any _doc pattern\n  /\\/_doc\\/(\\d+)/gi,\n  /\\\\_doc\\\\_(\\d+)/gi\n];\n\nlet docUrl = null;\nlet foundPattern = null;\n\nfor (let i = 0; i < docPatterns.length; i++) {\n  const matches = [...html.matchAll(docPatterns[i])];\n  console.log(`Doc-Pattern ${i + 1}:`, matches.length, 'Treffer');\n  \n  if (matches.length > 0) {\n    if (matches[0][1]) {\n      docUrl = matches[0][1];\n    } else {\n      // Für reine Nummer-Matches\n      docUrl = `/_doc/${matches[0][1]}`;\n    }\n    foundPattern = `Doc-Pattern ${i + 1}`;\n    console.log('Gefundener Doc-Link:', docUrl);\n    break;\n  }\n}\n\n// Absolute URL erstellen\nif (docUrl && !docUrl.startsWith('http')) {\n  if (docUrl.startsWith('/')) {\n    docUrl = `https://www.kaiseraugst.ch${docUrl}`;\n  } else {\n    docUrl = `https://www.kaiseraugst.ch/${docUrl}`;\n  }\n}\n\nif (docUrl) {\n  return {\n    ...($input.first().json),\n    pdfDownloadUrl: docUrl,\n    foundPattern: foundPattern,\n    debugInfo: {\n      searchedFor: '_doc/ links',\n      found: true\n    }\n  };\n} else {\n  return {\n    ...($input.first().json),  // ← Hier war der Fehler: .first).json) statt .first().json)\n    pdfDownloadUrl: null,\n    error: 'Kein _doc/ Link gefunden',\n    debugInfo: {\n      searchedFor: '_doc/ links',\n      htmlPreview: html.substring(0, 500)\n    }\n  };\n}"
+      },
+      "id": "53faf82e-e236-4547-8c23-9e98cd38b913",
+      "name": "PDF-Link finden",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.pdfDownloadUrl}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "12f64a40-ca53-4a47-babb-34276618f094",
+      "name": "PDF-Link gefunden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.pdfDownloadUrl}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "pdf_data"
+            }
+          }
+        }
+      },
+      "id": "a425c4fd-a51b-4a79-a800-cc8a6d89c779",
+      "name": "PDF herunterladen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -144,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dateinamen aus verfügbaren Daten generieren\nconst data = $input.first().json;\n\nconsole.log('=== DEBUG: Dateiname vorbereiten ===');\nconsole.log('Verfügbare Daten:', Object.keys(data));\nconsole.log('Alle Daten:', JSON.stringify(data, null, 2));\n\n// Versuche verschiedene Datum-Quellen zu finden\nlet emailDate = null;\nlet dateStr = null;\n\n// 1. Versuche verschiedene mögliche Datum-Felder\nconst possibleDateFields = [\n  'emailDate', \n  'date', \n  'receivedDate', \n  'sentDate',\n  'headers.date'\n];\n\nconsole.log('Suche nach Datum in folgenden Feldern:', possibleDateFields);\n\nfor (const field of possibleDateFields) {\n  let value = data[field];\n  \n  // Handle nested properties like headers.date\n  if (field.includes('.')) {\n    const parts = field.split('.');\n    value = data[parts[0]]?.[parts[1]];\n  }\n  \n  console.log(`${field}:`, value, typeof value);\n  \n  if (value) {\n    emailDate = value;\n    console.log(`✓ Datum gefunden in Feld: ${field}`);\n    break;\n  }\n}\n\n// 2. Versuche auch im ursprünglichen Email-Node nachzuschauen\nconst emailTriggerData = $('Email Trigger (IMAP)').first()?.json;\nif (!emailDate && emailTriggerData?.date) {\n  emailDate = emailTriggerData.date;\n  console.log('✓ Datum aus Email Trigger gefunden:', emailDate);\n}\n\n// 3. Parse das gefundene Datum\nif (emailDate) {\n  try {\n    let parsedDate;\n    \n    // Handle verschiedene Datum-Formate\n    if (typeof emailDate === 'string') {\n      // RFC 2822 Format (typisch für E-Mails)\n      if (emailDate.includes(',') || emailDate.includes('GMT') || emailDate.includes('UTC')) {\n        parsedDate = new Date(emailDate);\n      }\n      // ISO Format\n      else if (emailDate.includes('T') && emailDate.includes('Z')) {\n        parsedDate = new Date(emailDate);\n      }\n      // Andere Formate\n      else {\n        parsedDate = new Date(emailDate);\n      }\n    } else {\n      parsedDate = new Date(emailDate);\n    }\n    \n    console.log('Geparste Datum:', parsedDate);\n    \n    if (!isNaN(parsedDate.getTime())) {\n      // Schweizer Zeitzone berücksichtigen\n      const swissDate = new Date(parsedDate.toLocaleString(\"en-US\", {timeZone: \"Europe/Zurich\"}));\n      dateStr = swissDate.toISOString().split('T')[0]; // YYYY-MM-DD\n      console.log('✓ Erfolgreiche Datum-Konvertierung:', dateStr);\n    } else {\n      console.log('❌ Ungültiges Datum nach Parsing');\n    }\n  } catch (e) {\n    console.log('❌ Fehler beim Datum parsen:', e.message);\n  }\n}\n\n// 4. Fallback: Aktuelles Datum verwenden\nif (!dateStr) {\n  console.log('⚠️ Verwende aktuelles Datum als Fallback');\n  const now = new Date();\n  const swissNow = new Date(now.toLocaleString(\"en-US\", {timeZone: \"Europe/Zurich\"}));\n  dateStr = swissNow.toISOString().split('T')[0];\n}\n\n// 5. Deutsche Formatierung erstellen (DD.MM.YYYY)\nlet germanDate = '';\nlet filename = 'Ratsmitteilungen_Unbekanntes_Datum.pdf';\n\nif (dateStr) {\n  const [year, month, day] = dateStr.split('-');\n  germanDate = `${day}.${month}.${year}`;\n  filename = `Ratsmitteilungen_${germanDate}.pdf`;\n  console.log('✓ Generierter Dateiname:', filename);\n}\n\n// 6. Optional: Zusätzliche Info aus PDF-URL anhängen\nif (data.pdfDownloadUrl && data.pdfDownloadUrl.includes('_doc/')) {\n  const urlParts = data.pdfDownloadUrl.split('/');\n  const lastPart = urlParts[urlParts.length - 1];\n  \n  if (lastPart && lastPart.length > 0 && !lastPart.includes('.pdf')) {\n    // Nur anhängen wenn es eine Nummer/ID ist, nicht schon eine PDF-Datei\n    const baseFilename = `Ratsmitteilungen_${germanDate || dateStr}`;\n    filename = `${baseFilename}_${lastPart}.pdf`;\n    console.log('✓ Erweiterte Dateiname mit URL-Info:', filename);\n  }\n}\n\n// 7. Dateiname bereinigen (problematische Zeichen entfernen)\nfilename = filename.replace(/[<>:\"/\\\\|?*]/g, '_');\n\nconsole.log('=== FINAL RESULT ===');\nconsole.log('Final filename:', filename);\nconsole.log('Original email date:', emailDate);\nconsole.log('Processed date string:', dateStr);\nconsole.log('German formatted date:', germanDate);\n\nreturn {\n  ...data,\n  filename: filename,\n  debugInfo: {\n    originalEmailDate: emailDate,\n    extractedDate: dateStr,\n    germanDate: germanDate,\n    finalFilename: filename,\n    dateSource: emailDate ? 'email' : 'current',\n    allAvailableFields: Object.keys(data)\n  }\n};"
+      },
+      "id": "ac991365-3dd5-4a66-8565-f0b7a64db256",
+      "name": "Dateiname vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "sourceKey": "pdf_data",
+        "options": {}
+      },
+      "id": "f6ba557d-ef72-401c-bea2-7cc1857c5b78",
+      "name": "PDF für Telegram vorbereiten",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [
+        304,
+        64
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "chatId": "575184440",
+        "text": "=📧 Neue Ratsmitteilungen von der Gemeinde Kaiseraugst\n\n📄 Datei: {{ $('Dateiname vorbereiten').item.json.filename }}\n📅 E-Mail vom: {{ $('Email Trigger (IMAP)').item.json.date }}\n🔗 Quelle: {{ $('Dateiname vorbereiten').item.json.pdfDownloadUrl }}\n📩 Betreff: {{ $('Email Trigger (IMAP)').item.json.subject }}",
+        "additionalFields": {}
+      },
+      "id": "f97eb387-f239-4af8-951d-1a91695ebea2",
+      "name": "PDF per Telegram senden",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        64
+      ],
+      "webhookId": "75300aa2-42a0-4141-9311-0f16a072a6cb",
+      "credentials": {
+        "telegramApi": {
+          "id": "GquYpMUrgGlWHbny",
+          "name": "N8N Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=575184440",
+        "text": "⚠️ Fehler beim Verarbeiten der E-Mail:\n\n📩 Betreff: {{$json.emailSubject}}\n❌ Problem: PDF-Link konnte nicht gefunden werden\n🔍 Gefundene URLs: {{JSON.stringify($json.allUrls)}}\n\nBitte prüfe die E-Mail manuell.",
+        "additionalFields": {}
+      },
+      "id": "3c9e53d5-b195-46c4-b881-e984ff986626",
+      "name": "Fehler melden",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        384
+      ],
+      "webhookId": "77db44e0-22df-4355-b463-5a20bae1d3b5",
+      "credentials": {
+        "telegramApi": {
+          "id": "GquYpMUrgGlWHbny",
+          "name": "N8N Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        -1696,
+        304
+      ],
+      "id": "b4e2294c-bc3f-4cdc-9e73-f07fd3758623",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "ab6tvxmJBYxffJ5j",
+          "name": "N8N Email"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Von Gemeinde?": {
+      "main": [
+        [
+          {
+            "node": "Link extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Link gefunden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link gefunden?": {
+      "main": [
+        [
+          {
+            "node": "Webseite laden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webseite laden": {
+      "main": [
+        [
+          {
+            "node": "PDF-Link finden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF-Link finden": {
+      "main": [
+        [
+          {
+            "node": "PDF-Link gefunden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF-Link gefunden?": {
+      "main": [
+        [
+          {
+            "node": "PDF herunterladen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF herunterladen": {
+      "main": [
+        [
+          {
+            "node": "Dateiname vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dateiname vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "PDF für Telegram vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF für Telegram vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "PDF per Telegram senden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Von Gemeinde?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "c3b7874f-f85c-40d6-a363-e2adf1b318f3",
+  "triggerCount": 1,
+  "tags": []
+}

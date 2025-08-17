@@ -1,0 +1,703 @@
+{
+  "createdAt": "2025-07-25T10:37:44.981Z",
+  "updatedAt": "2025-07-25T12:14:31.000Z",
+  "id": "hYarJp1Ks4FtmIfD",
+  "name": "Parse DMARC reports, save them in database and notify on DKIM or SPF error",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "downloadAttachments": true,
+        "options": {}
+      },
+      "id": "ce9ce59c-3cf6-45db-97fc-825cb8516da8",
+      "name": "Email Trigger (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "position": [
+        848,
+        240
+      ],
+      "typeVersion": 2,
+      "credentials": {
+        "imap": {
+          "id": "uaLO61RSlQ7AT7ws",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.date_range_end.toDateTime('s') }}",
+        "format": "custom",
+        "customFormat": "yyyy-MM-dd hh:mm:ss",
+        "outputFieldName": "=date_range_end",
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "id": "903f949d-ab1e-48ec-a903-a1ebde4cfbe9",
+      "name": "End date format",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1072,
+        832
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b809e758-c3d2-4cbf-bab8-54d278a435dd",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.feedback.record[0] }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3303e551-8557-4220-ab24-48fcb0859a26",
+      "name": "If multiple records to parse",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        832,
+        560
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "621508ee-fbea-4233-aaf3-96b573a60bd5",
+              "name": "full_data",
+              "type": "object",
+              "value": "={{ $json.feedback }}"
+            },
+            {
+              "id": "d605e93a-0e0a-4584-aa1e-e38b49f264e7",
+              "name": "org_name",
+              "type": "string",
+              "value": "={{ $json.feedback.report_metadata.org_name }}"
+            },
+            {
+              "id": "604a5573-67db-4bb6-80d8-4421dce2406b",
+              "name": "date_range_begin",
+              "type": "string",
+              "value": "={{ $json.feedback.report_metadata.date_range.begin }}"
+            },
+            {
+              "id": "b9d7244f-9d58-43fc-a477-f0750c31e5e2",
+              "name": "date_range_end",
+              "type": "string",
+              "value": "={{ $json.feedback.report_metadata.date_range.end }}"
+            },
+            {
+              "id": "3570869a-9dc9-4b20-b48c-5f382825d021",
+              "name": "domain",
+              "type": "string",
+              "value": "={{ $json.feedback.policy_published.domain }}"
+            },
+            {
+              "id": "979e4eb4-6e39-4a3c-8f0a-21ecf8086a3c",
+              "name": "policy_published",
+              "type": "object",
+              "value": "={{ $json.feedback.policy_published }}"
+            },
+            {
+              "id": "91cdfa19-49c6-4e5d-a423-d76bbb61eddc",
+              "name": "source_ip",
+              "type": "string",
+              "value": "={{ $json['fbr'].row.source_ip }}"
+            },
+            {
+              "id": "2434b04e-3c5e-4e61-8be9-1f9c1ec2a6ce",
+              "name": "mail_count",
+              "type": "string",
+              "value": "={{ $json['fbr'].row.count }}"
+            },
+            {
+              "id": "09b73b84-0f6a-443b-8da0-c7ad9742a9c1",
+              "name": "evaluated_disposition",
+              "type": "string",
+              "value": "={{ $json['fbr'].row.policy_evaluated.disposition }}"
+            },
+            {
+              "id": "6c8e81ab-abc6-497c-8919-6b2e8008a1e8",
+              "name": "evaluated_dkim",
+              "type": "string",
+              "value": "={{ $json['fbr'].row.policy_evaluated.dkim }}"
+            },
+            {
+              "id": "fa8ca9d6-5e1b-402c-9afc-e6bf42e2c6ad",
+              "name": "evaluated_spf",
+              "type": "string",
+              "value": "={{ $json['fbr'].row.policy_evaluated.spf }}"
+            },
+            {
+              "id": "42f269c3-978a-45f6-bfe5-1fa1536500fb",
+              "name": "identifiers",
+              "type": "object",
+              "value": "={{ $json['fbr'].identifiers }}"
+            },
+            {
+              "id": "3375dc26-a739-4bf9-8a46-2f6739337921",
+              "name": "auth_results",
+              "type": "object",
+              "value": "={{ $json['fbr'].auth_results }}"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "id": "513864bc-c124-452d-8be3-44feb73454ed",
+      "name": "Map fields for DB input and parse",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1472,
+        608
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.date_range_begin.toDateTime('s') }}",
+        "format": "custom",
+        "customFormat": "yyyy-MM-dd hh:mm:ss",
+        "outputFieldName": "=date_range_begin",
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "id": "00cca3ae-1f0a-4ea9-8fb7-ac52d35c261b",
+      "name": "Begin format date",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        832,
+        832
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "dmarc",
+          "cachedResultName": "dmarc"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "full_data",
+              "value": "={{ $json.full_data.toJsonString() }}"
+            },
+            {
+              "column": "org_name",
+              "value": "={{ $json.org_name }}"
+            },
+            {
+              "column": "date_range_begin",
+              "value": "={{ $json.date_range_begin }}"
+            },
+            {
+              "column": "date_range_end",
+              "value": "={{ $json.date_range_end }}"
+            },
+            {
+              "column": "domain",
+              "value": "={{ $json.domain }}"
+            },
+            {
+              "column": "policy_published",
+              "value": "={{ $json.policy_published.toJsonString() }}"
+            },
+            {
+              "column": "source_ip",
+              "value": "={{ $json.source_ip }}"
+            },
+            {
+              "column": "mail_count",
+              "value": "={{ $json.mail_count }}"
+            },
+            {
+              "column": "evaluated_disposition",
+              "value": "={{ $json.evaluated_disposition }}"
+            },
+            {
+              "column": "evaluated_dkim",
+              "value": "={{ $json.evaluated_dkim }}"
+            },
+            {
+              "column": "evaluated_spf",
+              "value": "={{ $json.evaluated_spf }}"
+            },
+            {
+              "column": "identifiers",
+              "value": "={{ $json.identifiers == null ? null : $json.identifiers.toJsonString() }}"
+            },
+            {
+              "column": "auth_results",
+              "value": "={{ $json.auth_results == null ? null : $json.auth_results.toJsonString() }}"
+            }
+          ]
+        },
+        "options": {
+          "detailedOutput": true
+        }
+      },
+      "id": "18c2305a-db44-4e4d-97b9-1f04018085b0",
+      "name": "Input into database",
+      "type": "n8n-nodes-base.mySql",
+      "position": [
+        1408,
+        832
+      ],
+      "typeVersion": 2.4,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "818b461b-4bdc-4842-9f89-d1d8966b8c0a",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.evaluated_dkim }}",
+              "rightValue": "pass"
+            },
+            {
+              "id": "4322cb26-5ff1-4278-94ae-7ff278c61c6c",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.evaluated_spf }}",
+              "rightValue": "pass"
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "c65c4cfb-3912-4b45-a5e0-3ab787e018c8",
+      "name": "If issue with DKIM or SPF",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        848,
+        1200
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "feedback.record",
+              "newKey": "fbr"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "id": "5d17bf15-ecef-40e8-acc4-6af5ad1c712d",
+      "name": "Rename Keys",
+      "type": "n8n-nodes-base.renameKeys",
+      "position": [
+        1280,
+        448
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f563d673-bc82-4863-b132-d431ebe8f651",
+              "name": "fbr",
+              "type": "object",
+              "value": "={{ $json.feedback.record }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "0e2b8c73-0f53-46f9-9692-cbe87c97862d",
+      "name": "Rename column for consistency",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1072,
+        608
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "## How it works\n- monitor postmaster email for DKIM reprots\n- unpack report and parse XML\n- map and format fields for DB input\n\t- input into database\n\t- send notification on DKIM or SPF failure\n\n## Remember to set up\n- email input mailbox\n- notification channels",
+        "height": 304.36194895591655,
+        "width": 394.2691415313225
+      },
+      "id": "5796c124-645d-460e-88df-0a909a33b6b1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "attachment_0"
+      },
+      "id": "1457272e-630e-44ee-bb18-ac650d192cbf",
+      "name": "Unzip File",
+      "type": "n8n-nodes-base.compression",
+      "position": [
+        1072,
+        240
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "operation": "xml",
+        "binaryPropertyName": "file_0",
+        "options": {}
+      },
+      "id": "89ade90c-c7e3-4c6f-89cf-0e7ce1e55333",
+      "name": "Extract XML data",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1296,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8fd70f3c-53d5-4d99-ad2c-d526089fe0f5",
+      "name": "Parse XML data to JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        1488,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Preparation\nThis line is responsible for taking data from email and parsing it into JSON understandable by n8n",
+        "height": 159.80531276753783,
+        "width": 394.2691415313225
+      },
+      "id": "b17352d9-135a-4c26-993f-0c1fdafc1fa3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Mapping\nThis line is responsible for treating cases when XML has multiple info for domain. One DMARC report can contain more than one entries.\n\nLast node is responsible for matching data with database structure",
+        "height": 316.3177609714967,
+        "width": 394.2691415313225
+      },
+      "id": "31d2f822-aea6-41b4-bb1e-25b48cb3e972",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        448
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feedback.record",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "id": "e8fc0f91-1bdf-4bc5-b488-4f2c169da9c0",
+      "name": "Split Out For Separate Entries",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1072,
+        448
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Date translate\nThis line is responsible for translating date format into understandable by MySQL/MariaDB\n\nIn next node data is being input into MySQL/MariaDB ",
+        "height": 185.89072080153096,
+        "width": 394.2691415313225
+      },
+      "id": "9ba7a0b8-80e6-4559-83ec-894533194dc7",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        800
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Notifications\nLast two nodes are responsible for sending notifications in case IF inside DMARC report is reported any issue with SPF or DKIM",
+        "height": 320.66532897716223,
+        "width": 394.2691415313225
+      },
+      "id": "96461e30-87f0-48f1-a43f-60185ea1d835",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        1120
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fromEmail": "dmarc@juroct.net",
+        "toEmail": "admin@juroct.net",
+        "subject": "DMARC problem",
+        "emailFormat": "text",
+        "text": "DMARC evaluation failed for {{ $json.domain }} on  {{ $json.mail_count }} mails with disposition:  {{ $json.evaluated_disposition }}. DKIM:  {{ $json.evaluated_dkim }} SPF:  {{ $json.evaluated_spf }}",
+        "options": {}
+      },
+      "id": "ce400c97-cae4-41db-ad8f-e678fc4a27fe",
+      "name": "Send Error Notification Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        1472,
+        1328
+      ],
+      "typeVersion": 2.1,
+      "webhookId": "396787c5-3292-4d87-98ba-b2e8cf44cff1",
+      "credentials": {
+        "smtp": {
+          "id": "QcKjtg6kc10W2JO1",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        1184
+      ],
+      "id": "f418b8f3-6260-487b-a9d6-0507b7f8a1aa",
+      "name": "Send a text message",
+      "webhookId": "54155357-4ba0-4273-8627-538675ae50a2",
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Unzip File": {
+      "main": [
+        [
+          {
+            "node": "Extract XML data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys": {
+      "main": [
+        [
+          {
+            "node": "Map fields for DB input and parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "End date format": {
+      "main": [
+        [
+          {
+            "node": "Input into database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If issue with DKIM or SPF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract XML data": {
+      "main": [
+        [
+          {
+            "node": "Parse XML data to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Begin format date": {
+      "main": [
+        [
+          {
+            "node": "End date format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Unzip File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse XML data to JSON": {
+      "main": [
+        [
+          {
+            "node": "If multiple records to parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If issue with DKIM or SPF": {
+      "main": [
+        [
+          {
+            "node": "Send Error Notification Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If multiple records to parse": {
+      "main": [
+        [
+          {
+            "node": "Split Out For Separate Entries",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rename column for consistency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename column for consistency": {
+      "main": [
+        [
+          {
+            "node": "Map fields for DB input and parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out For Separate Entries": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map fields for DB input and parse": {
+      "main": [
+        [
+          {
+            "node": "Begin format date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Email Trigger (IMAP)": {
+      "lastMessageUid": 6
+    }
+  },
+  "meta": {
+    "templateId": "2369"
+  },
+  "pinData": {},
+  "versionId": "183bf761-3c3f-4cbb-b63b-62c2784064ab",
+  "triggerCount": 1,
+  "tags": []
+}

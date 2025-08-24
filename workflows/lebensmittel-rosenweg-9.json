@@ -1,0 +1,1160 @@
+{
+  "createdAt": "2025-08-24T15:49:57.541Z",
+  "updatedAt": "2025-08-24T15:49:57.541Z",
+  "id": "YloHsl9mfJ9iWWJ3",
+  "name": "Lebensmittel Rosenweg 9",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "IT-Rechnung",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "data_0",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {},
+        "path": "619d8367-5239-4c28-bbfa-a312d3efc03c"
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        832
+      ],
+      "id": "3fa48537-da91-4727-8844-f19a987dfeec",
+      "name": "On form submission",
+      "webhookId": "619d8367-5239-4c28-bbfa-a312d3efc03c"
+    },
+    {
+      "parameters": {
+        "content": "## Informationsextrahierung mit KI",
+        "height": 293,
+        "width": 403,
+        "color": 7
+      },
+      "id": "45d52e1a-b1ff-4cde-917e-f37d8a74e4b1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3136,
+        496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.jahr }}",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU",
+            "mode": "list",
+            "cachedResultName": "IT-Rechnungen",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3248,
+        -64
+      ],
+      "id": "527358dd-db5a-48c2-a546-7219b9d2ef9a",
+      "name": "Jahresordner schon vorhanden?",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Loop Over Items').item.json.jahr }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU",
+          "mode": "list",
+          "cachedResultName": "IT-Rechnungen",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3648,
+        -96
+      ],
+      "id": "3ea61ce0-162e-4991-956b-899a2e849a5b",
+      "name": "Jahresordner erstellen",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.monate }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Jahresordner erstellen').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4176,
+        -16
+      ],
+      "id": "3e548bee-44be-4ad5-bdda-be141f137ad7",
+      "name": "Monatsordner einfügen",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.output.Jahr }}",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU",
+            "mode": "list",
+            "cachedResultName": "IT-Rechnungen",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4128,
+        624
+      ],
+      "id": "4acccc14-f285-41aa-b45f-e21f55bf1c3a",
+      "name": "GetYearFolder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $('AI Agent').item.json.output.Monat }}",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4272,
+        624
+      ],
+      "id": "fe5e4ebe-e265-4473-8128-a44d937e4005",
+      "name": "GetMonthFolder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Aggregate').item.json['upload-id'][0] }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ $('AI Agent').item.json.output.Filename }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5024,
+        640
+      ],
+      "id": "31662569-b93a-4cc3-ba8b-2c98db114e3f",
+      "name": "UpdateFileName",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1u_bytAunV14KcKNuNTYFRAX0d9KK0zx2addV2SmwjDE",
+          "mode": "list",
+          "cachedResultName": "IT-Rechnungen",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u_bytAunV14KcKNuNTYFRAX0d9KK0zx2addV2SmwjDE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tabellenblatt1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ia3tDmpdMXi1Dt_grlnM_LcGp_4TVr_2KivXTspBPoI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Rechnungsdatum": "={{ $('AI Agent').item.json.output.Rechnungsdatum }}",
+            "Rechnungssteller": "={{ $('AI Agent').item.json.output.Rechnungssteller }}",
+            "Betrag": "={{ $('AI Agent').item.json.output.Betrag }}",
+            "Betrag in CHF": "={{ $('AI Agent').item.json.output['Betrag in CHF'] }}",
+            "Link": "={{ $('Upload file').item.json.webViewLink }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Rechnungsdatum",
+              "displayName": "Rechnungsdatum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rechnungssteller",
+              "displayName": "Rechnungssteller",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Betrag",
+              "displayName": "Betrag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Betrag in CHF",
+              "displayName": "Betrag in CHF",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        5232,
+        640
+      ],
+      "id": "632a7161-0d5e-417a-83af-9d02560d495e",
+      "name": "AddToOverview",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MYRU92dOucMTXG15",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Rechnung in entsprechenden Ordner verschieben und umbennenen",
+        "height": 293,
+        "width": 1071,
+        "color": 7
+      },
+      "id": "6b07bf5f-1663-4a7b-8866-b93332e1d232",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4096,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Dokumentieren",
+        "height": 293,
+        "width": 223,
+        "color": 7
+      },
+      "id": "3567e1d4-3897-4a26-8387-93385f3985e2",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5200,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "monate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        3984,
+        -96
+      ],
+      "id": "c9db4c7d-6aa5-453c-8251-119d2e6604f9",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3d0336a2-4706-42ad-9b5a-b1ba22f7c859",
+              "name": "monate",
+              "value": " [\"Januar\", \"Februar\", \"März\", \"April\", \"Mai\", \"Juni\", \"Juli\", \"August\", \"September\", \"Oktober\", \"November\", \"Dezember\"]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3824,
+        -96
+      ],
+      "id": "ae5adacb-ccdd-49ac-94d8-d88a9f546a78",
+      "name": "Monate als Liste"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        -96
+      ],
+      "id": "82c9304d-8b31-47bb-bffc-819d558bfc8f",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e8e78387-492a-4668-97d6-e5be1e512661",
+              "name": "jahr",
+              "value": "[2024, 2025, 2026, 2027, 2028, 2029, 2030]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2624,
+        -96
+      ],
+      "id": "8705f387-544f-43e8-a346-3301b87a0b01",
+      "name": "Jahre auswählen"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jahr",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2816,
+        -96
+      ],
+      "id": "75d3968b-47f6-43af-8877-1ca3b97dacd1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3008,
+        -96
+      ],
+      "id": "ada78b6e-a8f2-4adf-b572-e11be9288fe4",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "# Ordner für Rechnungen erstellen",
+        "height": 80,
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        -256
+      ],
+      "id": "561f1b43-5f14-4ba2-a72c-de91d1d446df",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Eingehende Rechnungen verarbeiten",
+        "height": 80,
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        384
+      ],
+      "id": "95c23e7a-fa8d-4772-a000-2fff4207f83b",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8947703c-9256-4466-be49-0480aaace705",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3456,
+        -64
+      ],
+      "id": "9c8e62cd-9a61-4dfc-8e92-c5128c414966",
+      "name": "Ordner noch nicht vorhanden"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "data_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        624
+      ],
+      "id": "0117be83-390f-4a79-ab25-cbe55c714a37",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"data:application/pdf;base64,{{ $json.data }}\"\n  },\n  \"include_image_base64\": true\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "ocr_output.json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2752,
+        624
+      ],
+      "id": "9f973a98-9d37-42ef-ba37-cd227ae6ff70",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "b6FWoY6KHwjxcE0S",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "binaryPropertyName": "ocr_output.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2992,
+        624
+      ],
+      "id": "f72a4def-61f6-4218-87ee-e32fab7613be",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3200,
+        912
+      ],
+      "id": "dc8f4315-a830-4390-b080-d6800893899b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "uKb2cRMi6AQKSCn0",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Rechnungsdatum\": \"\",\n\t\"Rechnungssteller\": \"\",\n    \"Betrag\": \"\",\n    \"Betrag in CHF\": \"\",\n    \"Filename\": \"\",\n    \"Jahr\": \"\",\n    \"Monat\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3344,
+        912
+      ],
+      "id": "fa8382ac-f6fd-4fe7-996e-1dfa7e7ab8a3",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "data_0",
+        "name": "={{ $json.data_0[0].filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU",
+          "mode": "list",
+          "cachedResultName": "IT-Rechnungen",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1uHERbltzXN1aUa2o4KeuT67ou1OrxoKU"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2544,
+        832
+      ],
+      "id": "5dda3ec7-faf2-46fe-92b6-d5565d3df1c8",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json['upload-id'][0] }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.month_id[0] }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4864,
+        640
+      ],
+      "id": "83b10b70-ecac-459b-91e3-4ec437ae2759",
+      "name": "Move file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0GkbVqMwkkF8q4T0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "id",
+              "newKey": "upload-id"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        832
+      ],
+      "id": "923527f1-ad92-406a-9cd7-820a03bf1504",
+      "name": "Rename Keys"
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "id",
+              "newKey": "month_id"
+            },
+            {
+              "currentKey": "name",
+              "newKey": "month_name"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        4432,
+        624
+      ],
+      "id": "ea5bad6e-4ae4-4285-9aba-9e67823a06ec",
+      "name": "Rename Keys1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4576,
+        640
+      ],
+      "id": "3bdc55f6-45a8-4a8e-b9e7-f19beb74cc2a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "month_id"
+            },
+            {
+              "fieldToAggregate": "upload-id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        4704,
+        640
+      ],
+      "id": "ad9755ec-5b97-481b-8628-bcfddd431c56",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "downloadAttachments": true,
+        "dataPropertyAttachmentsPrefixName": "data_",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        624
+      ],
+      "id": "c5ffabd1-88f1-4bcd-94d7-7b40f9fc8510",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "ZKsLurgssxedncR4",
+          "name": "IT-Rechnung"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data.pages[0].markdown }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Du bist mein Rechnungsassistent und extrahierst oder generierst mir folgende Felder:\n\nRechnungsdatum in DD.MM.YYYY\nRechnungssteller Kannst du auch auch aus Adressinformationen extrahieren.\nBetrag in der Orignalwährung mit Währungszeichen zuerst\nBetrag in CHF soll so aussehen CHF 0'000.00 und wenn Betrag nicht CHF ist soll es daraus umgerechnecht werden\nFilename soll sinnvoll generiert werden.\nJahr in YYYY\nMonat ausschreiben als Name und in Deutsch"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3200,
+        624
+      ],
+      "id": "30403ae3-e7d3-4ab0-9e77-5a5c3d4fdf81",
+      "name": "AI Agent"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jahresordner schon vorhanden?": {
+      "main": [
+        [
+          {
+            "node": "Ordner noch nicht vorhanden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jahresordner erstellen": {
+      "main": [
+        [
+          {
+            "node": "Monate als Liste",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monatsordner einfügen": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetYearFolder": {
+      "main": [
+        [
+          {
+            "node": "GetMonthFolder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetMonthFolder": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateFileName": {
+      "main": [
+        [
+          {
+            "node": "AddToOverview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AddToOverview": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Monatsordner einfügen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monate als Liste": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Jahre auswählen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jahre auswählen": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Jahresordner schon vorhanden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ordner noch nicht vorhanden": {
+      "main": [
+        [
+          {
+            "node": "Jahresordner erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Rename Keys1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        [
+          {
+            "node": "UpdateFileName",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "GetYearFolder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Email Trigger (IMAP)": {
+      "lastMessageUid": 9
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f80e8d8e-c46f-4227-8937-010b8258ad9d",
+  "triggerCount": 2,
+  "tags": [
+    {
+      "createdAt": "2025-08-22T08:41:32.445Z",
+      "updatedAt": "2025-08-22T08:41:32.445Z",
+      "id": "XhY9J5Hb3vjCymhN",
+      "name": "Invoice Automation"
+    }
+  ]
+}

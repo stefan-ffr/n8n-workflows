@@ -1,0 +1,1884 @@
+{
+  "createdAt": "2025-08-17T18:33:08.401Z",
+  "updatedAt": "2025-08-24T14:14:50.000Z",
+  "id": "UToly5YnZ74V4uZd",
+  "name": "Speziell Workflows",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Perplexiy für Tiefenrecherche (mit Quellenangaben!)\n\nVerwendet das Modell sonar-deep-research von Perplexity AI, um fundierte Antworten inklusive Quellenangaben zu generieren – ideal für Tiefenrecherche und strukturierte Berichte\n\n@watzon/n8n-nodes-perplexity",
+        "height": 360,
+        "width": 1300,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9dac0de2-017c-4dc0-8941-518246c4debe",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "@watzon/n8n-nodes-perplexity.perplexity",
+      "typeVersion": 1,
+      "position": [
+        288,
+        160
+      ],
+      "id": "e8beeda5-7eca-49d8-ba23-b6560e164409",
+      "name": "Perplexity",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "formTitle": "Tiefenrecherche",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Thema",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Fokus/Fragestellung"
+            },
+            {
+              "fieldLabel": "Zielgruppe / Verwendungszweck"
+            },
+            {
+              "fieldLabel": "Sprache"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        160
+      ],
+      "id": "693b2ca3-1904-404b-980a-1d9572c47be0",
+      "name": "On form submission",
+      "webhookId": "86a3fcb1-162c-4f10-9b43-9c995f3be419"
+    },
+    {
+      "parameters": {},
+      "type": "@watzon/n8n-nodes-perplexity.perplexity",
+      "typeVersion": 1,
+      "position": [
+        864,
+        160
+      ],
+      "id": "55f199b8-9e90-42fa-b82f-b68469ebbacf",
+      "name": "Perplexity1",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "content": "## 4. OCR mit Tesseract (lokal)\nTesseract ist ein lokales OCR-Tool zur Texterkennung aus Bildern – ohne externe Dienste oder Cloud-Anbieter.\nIdeal für datenschutzkonforme Verarbeitung von z. B. Rechnungsbildern direkt im Workflow.\n\nn8n-nodes-tesseractjs",
+        "height": 360,
+        "width": 1440,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1728
+      ],
+      "id": "15c82be9-2741-44cc-a7dc-5bbdbdb4894d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.choices[0].message.content\n    .replace(/<think>[\\s\\S]*?<\\/think>/, '')\n    .replace(/([^\\s])\\[(\\d+)\\]/g, '$1 [$2]')\n    .trim() }}\n\n## Literatur:\n\n{{ $json.citations\n    .map((item, i) => `<a id=\"ref${i + 1}\"></a>[${i + 1}] ${item}`)\n    .join('\\n\\n') }}\n\n",
+        "name": "={{ $('On form submission').item.json.Thema }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ugEjes2PT_Hc3lru8gLNUFZtcseUezz9",
+          "mode": "list",
+          "cachedResultName": "Recherche",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ugEjes2PT_Hc3lru8gLNUFZtcseUezz9"
+        },
+        "options": {
+          "convertToGoogleDocument": true
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        160
+      ],
+      "id": "9a1df0f1-d374-4374-b619-2d900c6bb2b5",
+      "name": "Google Drive"
+    },
+    {
+      "parameters": {
+        "formTitle": "Rechnung",
+        "formDescription": "Bitte lade deine Rechnung hoch.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Rechnung",
+              "fieldType": "file",
+              "acceptFileTypes": ".jpg, .png",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        112,
+        1888
+      ],
+      "id": "cac1254e-ce7e-463d-ae2b-802f1489824b",
+      "name": "On form submission1",
+      "webhookId": "687a572a-ca72-4be9-9eff-dd54ba3ef52e"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Rechnung",
+        "options": {}
+      },
+      "type": "n8n-nodes-tesseractjs.tesseractNode",
+      "typeVersion": 1,
+      "position": [
+        320,
+        1888
+      ],
+      "id": "f97c3720-c7e6-45be-89ba-7bcf798c06bc",
+      "name": "Tesseract"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "rechnungsnummer",
+              "description": "Eindeutige Nummer der Rechnung",
+              "required": true
+            },
+            {
+              "name": "lieferant_name",
+              "description": "Name des Anbieters oder Geschäfts"
+            },
+            {
+              "name": "lieferant_name",
+              "description": "Name der Tankstelle oder des Anbieters"
+            },
+            {
+              "name": "brutto_betrag",
+              "description": "Gesamtbetrag inkl. Mehrwertsteuer"
+            },
+            {
+              "name": "mwst_satz",
+              "description": "Mehrwertsteuersatz (z. B. 19 % oder 7 %)"
+            },
+            {
+              "name": "netto_betrag",
+              "description": "Betrag ohne Mehrwertsteuer"
+            },
+            {
+              "name": "rechnungsdatum",
+              "description": "Datum der Rechnungsaustellung"
+            },
+            {
+              "name": "ust-id",
+              "description": "Umsatzsteuer-Identifikationsnummer des Rechnungsausstellers"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        640,
+        1888
+      ],
+      "id": "336bc5f4-4bdb-4833-bc85-cbaabe56d147",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "content": "## 5. Elevenlabs\nDieses Modul wandelt Texte mithilfe von ElevenLabs in natürlich klingende Sprachausgabe um.\nIdeal für Voice-Overs, Audio-Newsletter oder barrierefreie Inhalte.\n\nn8n-nodes-elevenlabs",
+        "height": 360,
+        "width": 1900,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        2368
+      ],
+      "id": "14b3aad4-5422-4b86-96bc-87cb701eb44f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        2528
+      ],
+      "id": "9574ae7d-215b-446e-8271-bef30fbf311b",
+      "name": "ElevenLabs",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "content": "## 2. Apify\n\nNutze Apify-Actors für automatisiertes Web Scraping (z. B. Google Maps, Apollo.io, Tiktok, Instagram etc).\n\nn8n-nodes-apify",
+        "height": 360,
+        "width": 1320,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        608
+      ],
+      "id": "6de32146-2e56-44ac-ae61-df070a5284cf",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "formTitle": "Text zu Sprache",
+        "formDescription": "Gebe den Text an, der in Sprache übersetzt werden soll.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Text",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Dropdown",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Englisch"
+                  },
+                  {
+                    "option": "Französisch"
+                  },
+                  {
+                    "option": "Spanisch"
+                  },
+                  {
+                    "option": "Deutsch"
+                  }
+                ]
+              },
+              "multiselect": true,
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        2512
+      ],
+      "id": "3c8c1ef0-ec8d-40a2-b10d-50379812aac7",
+      "name": "Text to Speech",
+      "webhookId": "f893aed5-9e26-4d36-bc49-ffc55abf7402"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1fs_ahL4VzjMyPfmUZ2U2tPX0UnxrEYAWJu0CdrKwzVQ",
+          "mode": "list",
+          "cachedResultName": "Google Maps",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fs_ahL4VzjMyPfmUZ2U2tPX0UnxrEYAWJu0CdrKwzVQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tabellenblatt1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fs_ahL4VzjMyPfmUZ2U2tPX0UnxrEYAWJu0CdrKwzVQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Unternehmen": "={{ $json.title }}",
+            "Adresse": "={{ $json.address }}",
+            "Postleitzahl": "={{ $json.postalCode }}",
+            "Bezirk": "={{ $json.neighborhood }}",
+            "Stadt": "={{ $json.city }}",
+            "Website": "={{ $json.website }}",
+            "Telefonnummer": "={{ $json.phone.replace(\"+\", \"\") }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Unternehmen",
+              "displayName": "Unternehmen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Adresse",
+              "displayName": "Adresse",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Bezirk",
+              "displayName": "Bezirk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Stadt",
+              "displayName": "Stadt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Postleitzahl",
+              "displayName": "Postleitzahl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Website",
+              "displayName": "Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Telefonnummer",
+              "displayName": "Telefonnummer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        432,
+        752
+      ],
+      "id": "6f59c89f-ed48-4ba9-88e2-d8c805eccd2d",
+      "name": "Google Sheets"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1JTNBZdEO5uKioAbHvgrGwBZGzhMd-RdneXMr63eKxuo",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JTNBZdEO5uKioAbHvgrGwBZGzhMd-RdneXMr63eKxuo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tabellenblatt1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JTNBZdEO5uKioAbHvgrGwBZGzhMd-RdneXMr63eKxuo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Unternehmen": "={{ $json.organization_name }}",
+            "Vorname": "={{ $json.first_name }}",
+            "Nachname": "={{ $json.last_name }}",
+            "Titel": "={{ $json.title }}",
+            "Email": "={{ $json.email }}",
+            "Website": "={{ $json.organization_website_url }}",
+            "Linkedin": "={{ $json.linkedin_url }}",
+            "Stadt": "={{ $json.organization_city }}",
+            "Industrie": "={{ $json.industry }}",
+            "Bundesland": "={{ $json.organization_state }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Unternehmen",
+              "displayName": "Unternehmen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vorname",
+              "displayName": "Vorname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nachname",
+              "displayName": "Nachname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Titel",
+              "displayName": "Titel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "displayName": "Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Linkedin",
+              "displayName": "Linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industrie",
+              "displayName": "Industrie",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stadt",
+              "displayName": "Stadt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bundesland",
+              "displayName": "Bundesland",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1104,
+        752
+      ],
+      "id": "226f7902-3368-4e76-8de9-0117e23f143d",
+      "name": "Google Sheets1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        240,
+        752
+      ],
+      "id": "e24e6bdc-dc9e-4af7-b376-854ea91a1e4d",
+      "name": "Google Maps Scraper",
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        928,
+        752
+      ],
+      "id": "78e338a4-91d5-4d76-9e3d-8b2550f5e133",
+      "name": "Apollo Lead Scraper",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "content": "## 3. Firecrawl - Website Scrapen und für KI Modelle verständlich machen\nFirecrawl scrapt Webseiteninhalte und strukturiert sie so, dass sie direkt von KI-Modellen weiterverarbeitet werden können.\nIdeal für Content-Analysen, Wettbewerbsbeobachtung oder Recherche-Workflows mit LLMs.\n\nn8n-nodes-firecrawl-scraper",
+        "height": 360,
+        "width": 940,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1120
+      ],
+      "id": "1a9e9129-96cc-454d-9b76-291acdc6affa",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-firecrawl-scraper.fireCrawlScraper",
+      "typeVersion": 1,
+      "position": [
+        304,
+        1280
+      ],
+      "id": "8ec4df2f-ae4e-4b50-a074-a05b6e9d3534",
+      "name": "FireCrawl Scraper",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "content": "## 7. Supadata - Youtube Funktionen wie z.B. Transkription, Videodetails, Kanäle etc.\n\nn8n-nodes-supadata",
+        "height": 360,
+        "width": 920,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        32,
+        3728
+      ],
+      "id": "572e0661-3947-4abf-af8d-9de07f087c24",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-supadata.supadata",
+      "typeVersion": 1,
+      "position": [
+        368,
+        3872
+      ],
+      "id": "4d8add12-9048-4896-bbf5-e36a0fc1b488",
+      "name": "Supadata",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "content": "## 6. Run Node with Credential X - Mehrere Accounts verwalten\nDieser Node ermöglicht das dynamische Umschalten von Zugangsdaten (Credentials) zur Laufzeit basierend auf Eingabedaten.\nIdeal für Workflows mit mehreren Konten desselben Dienstes (z. B. mehrere Shopify- oder Gmail-Konten), ohne dass du separate Nodes oder Workflows erstellen musst\n\nn8n-nodes-run-node-with-credentials-x",
+        "height": 500,
+        "width": 1420,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        2992
+      ],
+      "id": "718f0256-d1ff-4b06-a8ee-7319b360fb57",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-run-node-with-credentials-x.runNodeWithCredentialsX",
+      "typeVersion": 1,
+      "position": [
+        672,
+        3200
+      ],
+      "id": "7523ad07-746a-4851-8688-6d1290790fa8",
+      "name": "Run Node WIth Credentials X"
+    },
+    {
+      "parameters": {
+        "content": "## 8. MCP Server\n\nMCP (Model Context Protocol) macht externe Tools für AI-Agenten direkt nutzbar – ohne API-Konfiguration.\nTools beschreiben sich selbst, inklusive Parameter & Beschreibung.\n\nDie Community Version unterstützt mehrere Transportprotokolle.\n\nn8n-nodes-mcp",
+        "height": 460,
+        "width": 1600,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        4384
+      ],
+      "id": "1734b760-c478-45c0-baef-06f36c0d28b8",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## 9. QR-Code erstellen\n\nBeispiel Usecase: Eventregistrierung\n\nn8n-nodes-qrcode",
+        "height": 360,
+        "width": 1700,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        32,
+        5024
+      ],
+      "id": "d5b60658-ec27-416b-a677-e1b46859096b",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-qrcode.qrCode",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        5152
+      ],
+      "id": "c4408dbd-87fd-4a4a-ac6c-ab36a06205cf",
+      "name": "QrCode"
+    },
+    {
+      "parameters": {
+        "formTitle": "Event-Registrierung",
+        "formDescription": "Melde dich für das Event an und erhalte deinen persönlichen QR Code zum einchecken.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Vorname",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Nachname",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        5152
+      ],
+      "id": "4c1ab93f-f158-4ccc-9fda-29f787c64455",
+      "name": "On form submission2",
+      "webhookId": "16cfe2c9-8a32-409a-8d5c-d8e439e5517f"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cPWgNiKul86hLmddj2tQy1HXEttvTXGN7PxZJVPjJto",
+          "mode": "list",
+          "cachedResultName": "Registrierung",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cPWgNiKul86hLmddj2tQy1HXEttvTXGN7PxZJVPjJto/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tabellenblatt1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cPWgNiKul86hLmddj2tQy1HXEttvTXGN7PxZJVPjJto/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Vorname": "={{ $('On form submission2').item.json.Vorname }}",
+            "Nachname": "={{ $('On form submission2').item.json.Nachname }}",
+            "Email": "={{ $('On form submission2').item.json.Email }}",
+            "ID": "={{ $json.ticketId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Vorname",
+              "displayName": "Vorname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nachname",
+              "displayName": "Nachname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1120,
+        5152
+      ],
+      "id": "8c0af08b-06af-477c-8c06-2917f1e3c3be",
+      "name": "Eintragen"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    ticketId: Math.floor(100000 + Math.random() * 900000)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        5152
+      ],
+      "id": "291021af-49d3-4219-9599-1608ae57151a",
+      "name": "ID generieren"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "returnBinary",
+        "completionTitle": "QR-Code",
+        "completionMessage": "Bitte zeige folgenden QR Code beim Eintritt vor.",
+        "inputDataFieldName": "qrcode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        5152
+      ],
+      "id": "629ec59f-c5d5-4465-a806-28db64d9ae4e",
+      "name": "Form",
+      "webhookId": "9ab984b9-fcfd-4e19-9292-7afcd7e4723d"
+    },
+    {
+      "parameters": {
+        "content": "## 10. Convert API zum Konvertieren von Dateien. \n### Konvertiert jegliche Datentypen.\n\nBeispiel: Bild wird eingescannt als PDF. Dadurch jedoch maschinell nicht auslesbar. Also wieder umwandeln zu Bilddatei und mit OCR auslesen.\n\n",
+        "height": 360,
+        "width": 1240,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        32,
+        5632
+      ],
+      "id": "8b47f823-c9a0-4742-8efd-212e2c60f67b",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "Rechnung",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        320,
+        5760
+      ],
+      "id": "36e88072-f553-4828-9c11-e3c23a5f79a1",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Files[0].Url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        5760
+      ],
+      "id": "410f9d45-1cec-438e-acd1-cadcf674d1e0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "curlImport": "",
+        "httpVariantWarning": "",
+        "method": "POST",
+        "url": "https://v2.convertapi.com/convert/pdf/to/jpg",
+        "": "",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "convertApi",
+        "provideSslCertificates": false,
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "Storefile",
+              "value": "true"
+            }
+          ]
+        },
+        "sendHeaders": false,
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"Parameters\": [\n    {\n      \"Name\": \"File\",\n      \"FileValue\": {\n        \"Name\": \"{{ $('On form submission3').item.json.Rechnung[0].filename }}\",\n        \"Data\": \"{{ $json.data }}\"\n      }\n    }\n  ]\n}\n",
+        "options": {},
+        "infoMessage": ""
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        5760
+      ],
+      "id": "86ab91b4-10f9-4209-96d4-d07f03949b59",
+      "name": "ConvertAPI HTTP Request1",
+      "extendsCredential": "convertApi"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-tesseractjs.tesseractNode",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        5760
+      ],
+      "id": "b1218d5f-fea2-469a-b4f1-3c0bd3a0cfe8",
+      "name": "Tesseract1"
+    },
+    {
+      "parameters": {
+        "formTitle": "Rechnung hochladen",
+        "formDescription": "Melde dich für das Event an und erhalte deinen persönlichen QR Code zum einchecken.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Rechnung",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        5760
+      ],
+      "id": "04f14be5-d7f5-4b61-9b12-33ca4b626bc4",
+      "name": "On form submission3",
+      "webhookId": "5efeea09-e98f-4551-8649-48f08932093b"
+    },
+    {
+      "parameters": {
+        "content": "## Bonus: Datensätze vergleichen - Compare Datasets\n\n**Natives Modul**\n- Vergleicht zwei Datensätze automatisch auf Änderungen\n- Unterschiede sofort erkennen\n- Hebt nur die wirklich relevanten Abweichungen hervor\n- Ideal für Inventar, Preisänderungen & Datenchecks\n\n### Vorteil: Fehler frühzeitig erkennen und vermeiden",
+        "height": 520,
+        "width": 1220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        32,
+        6272
+      ],
+      "id": "4a24891d-c780-4f63-8114-c41312d3de68",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Text }}\n\nDas sind die Sprachen:\n{{ $json.Dropdown }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Übersetze den Text in die gegebenen Sprachen."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        768,
+        2512
+      ],
+      "id": "1cba7626-4494-460c-844a-5df0009151f8",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        768,
+        2720
+      ],
+      "id": "7a90f780-36a5-4043-a6f1-17cf7c3bb05a",
+      "name": "OpenRouter Chat Model2"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"sprache\": \"Spanisch\",\n    \"text\": \"Hola, soy Julian\"\n  },\n  {\n    \"sprache\": \"Englisch\",\n    \"text\": \"hello, im Julian\"\n  }\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        2720
+      ],
+      "id": "b28a0292-464c-4786-b457-f57c25b4069c",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        2512
+      ],
+      "id": "e430efe7-c4bb-4a79-83c4-0a8dc54e42e0",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        240,
+        2512
+      ],
+      "id": "2df68add-f7dc-4415-bb9d-8ab6b591c3ab",
+      "name": "ElevenLabs1",
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-qrcode.qrCode",
+      "typeVersion": 1,
+      "position": [
+        272,
+        5168
+      ],
+      "id": "738a9963-0510-4776-b0fa-41f05f5700a4",
+      "name": "QrCode1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1248,
+        1744
+      ],
+      "id": "da87ba44-2add-4d6b-ae13-b6a62371a984",
+      "name": "OpenAI"
+    },
+    {
+      "parameters": {
+        "url": "https://mistral.ai/news/mistral-ocr",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1248,
+        1920
+      ],
+      "id": "1fb3fa0d-5b1c-43cf-a3b2-7b31fb31d61d",
+      "name": "Mistral OCR"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        3120
+      ],
+      "id": "6c339275-dbe0-4165-827c-07bf8f1165c4",
+      "name": "Nutzer 1",
+      "webhookId": "bfc45358-a92c-4699-b247-c7a44fab14d2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        3312
+      ],
+      "id": "49ff5f0e-ff93-43ec-8ecb-85786bfddd9c",
+      "name": "Nutzer 2",
+      "webhookId": "bfc45358-a92c-4699-b247-c7a44fab14d2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1232,
+        3120
+      ],
+      "id": "c4bbc9ee-59bc-4a7a-857a-8e4b71778d1c",
+      "name": "Nutzer 3",
+      "webhookId": "bfc45358-a92c-4699-b247-c7a44fab14d2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1232,
+        3312
+      ],
+      "id": "c4904d70-3f28-4bd5-ae74-b28cc795ca67",
+      "name": "Nutzer 4",
+      "webhookId": "bfc45358-a92c-4699-b247-c7a44fab14d2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        400,
+        6480
+      ],
+      "id": "4d08f477-b8d2-4a1c-a7c8-d9dc0b6c905a",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nlet assignedId;\n\nif (input.account === 'ivanov') {\n  assignedId = 'dgYuTPNYEcoO8ucv';\n} else if (input.account === 'testaccount') {\n  assignedId = '41t101V5UvGJRHiI';\n} else {\n  assignedId = '91230142U34H43I';\n}\n\nreturn [\n  {\n    json: {\n      ...input,\n      assignedId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        3200
+      ],
+      "id": "aaa1cc81-5fd0-4170-8f4a-4f7919e93a5d",
+      "name": "ID setzen"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d15e84f-ade3-473c-8a77-d71f0e7a641f",
+              "name": "account",
+              "value": "testaccount",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        3200
+      ],
+      "id": "6de45b2a-19c6-40bc-972c-eea51ccfded2",
+      "name": "Account bestimmen"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-mcp.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        320,
+        4624
+      ],
+      "id": "18921219-43aa-4ca2-90f8-a8ef8cef091d",
+      "name": "Get Airbnb Tools"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-mcp.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        512,
+        4624
+      ],
+      "id": "f3e94108-d606-48bb-8db6-b858afa6cbf5",
+      "name": "Execute Airbnb Tools"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Du bist ein hilfreicher Agent."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1152,
+        4464
+      ],
+      "id": "1b4fc18c-654b-4a46-a5aa-fdf9ddad8568",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        4464
+      ],
+      "id": "f285800d-7f23-498d-b9ba-73e12690e39f",
+      "name": "When chat message received",
+      "webhookId": "afb0e71f-deab-42a5-9b38-ea40ff20d0cb"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        4688
+      ],
+      "id": "5cea249e-4eec-444f-b903-65f7111a952e",
+      "name": "OpenRouter Chat Model"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1152,
+        4688
+      ],
+      "id": "99e20592-6312-40d0-a457-ddbb0efc743c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        4688
+      ],
+      "id": "36cbda37-dff3-418c-843d-ef32384dc3cd",
+      "name": "Airbnb List Tools"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        4688
+      ],
+      "id": "f4b37478-ce51-47d5-a278-bf78baba5b4d",
+      "name": "Airbnb Execute"
+    },
+    {
+      "parameters": {
+        "path": "65d651db-c7c3-4623-9a28-c7e6b8917d70"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        4448
+      ],
+      "id": "363832fb-56c4-47dc-8dba-4ebceca01674",
+      "name": "MCP Server Trigger",
+      "webhookId": "65d651db-c7c3-4623-9a28-c7e6b8917d70"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "sendTo": "s",
+        "subject": "s",
+        "message": "s",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        4672
+      ],
+      "id": "3fe5512a-6450-4b35-b1ec-21e392772a63",
+      "name": "Gmail1",
+      "webhookId": "dc19387c-0ba0-4487-8bbf-f2707fbd5c96"
+    },
+    {
+      "parameters": {
+        "toRecipients": "s",
+        "subject": "s",
+        "bodyContent": "s",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlookTool",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        4672
+      ],
+      "id": "15b3a5de-b216-4cc5-aa17-28256915d8f1",
+      "name": "Microsoft Outlook",
+      "webhookId": "ff00dfe3-fd96-4e1f-b2a0-cd4a8735c76d"
+    },
+    {
+      "parameters": {
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.microsoftExcelTool",
+      "typeVersion": 2.1,
+      "position": [
+        2128,
+        4672
+      ],
+      "id": "3a4d20c6-f25f-4f4a-94e2-9a5afa3eb796",
+      "name": "Microsoft Excel 365"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Du bist ein hilfreicher Agent."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        2512,
+        4448
+      ],
+      "id": "6f300797-71be-40a2-8795-674f34d2a5e7",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        4672
+      ],
+      "id": "fc8dd8f4-4ee4-4c9b-ac4a-5430fec306ee",
+      "name": "OpenRouter Chat Model3"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2624,
+        4672
+      ],
+      "id": "46a28601-e657-47f1-ade1-f9933b2aef54",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://n8n.srv770619.hstgr.cloud/mcp/65d651db-c7c3-4623-9a28-c7e6b8917d70/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        4672
+      ],
+      "id": "b2f43f02-f966-433e-81ba-e57ec816aa49",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "content": "## n8n native MCP Integration - Nur über SSE Transportprotokoll",
+        "height": 460,
+        "width": 1180,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        4368
+      ],
+      "id": "e3bf3d0e-8fe1-4f8f-8862-84e86f8b54f4",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "email",
+              "field2": "email"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.compareDatasets",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        6448
+      ],
+      "id": "fb550a7d-b74d-4df8-87ee-dfe066a6ddae",
+      "name": "Compare Datasets1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "leads",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        784,
+        6384
+      ],
+      "id": "4d034bbd-8052-4fa5-9c5a-06a122859dd4",
+      "name": "Split Out5"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "leads",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        784,
+        6560
+      ],
+      "id": "9d50754e-53f9-44ef-a6bc-2936ec994f42",
+      "name": "Split Out3"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"leads\": [\n    {\n      \"id\": 1,\n      \"firstName\": \"Lena\",\n      \"lastName\": \"Meyer\",\n      \"email\": \"lena.meyer@example.com\",\n      \"company\": \"CloudWorks GmbH\",\n      \"phoneNumber\": \"+49-151-1234567\",\n      \"source\": \"Google Ads\",\n      \"status\": \"New Lead\",\n      \"interestLevel\": \"High\",\n      \"notes\": \"Interessiert an Cloud-Automatisierung für interne Prozesse\",\n      \"dateAdded\": \"2025-05-01T09:00:00Z\"\n    },\n    {\n      \"id\": 2,\n      \"firstName\": \"Tobias\",\n      \"lastName\": \"Schmidt\",\n      \"email\": \"t.schmidt@example.com\",\n      \"company\": \"FinTech Innovators\",\n      \"phoneNumber\": \"+49-151-2345678\",\n      \"source\": \"Webinar\",\n      \"status\": \"Contacted\",\n      \"interestLevel\": \"Medium\",\n      \"notes\": \"War beim N8N-Webinar dabei, interessiert an Follow-up\",\n      \"dateAdded\": \"2025-05-03T14:30:00Z\"\n    },\n    {\n      \"id\": 3,\n      \"firstName\": \"Julia\",\n      \"lastName\": \"Berger\",\n      \"email\": \"julia.berger@example.com\",\n      \"company\": \"LegalSync AG\",\n      \"phoneNumber\": \"+49-151-3456789\",\n      \"source\": \"Empfehlung\",\n      \"status\": \"Meeting Scheduled\",\n      \"interestLevel\": \"High\",\n      \"notes\": \"Von Tobias Schmidt empfohlen, benötigt Vertragsautomatisierung\",\n      \"dateAdded\": \"2025-05-05T11:15:00Z\"\n    },\n    {\n      \"id\": 4,\n      \"firstName\": \"Max\",\n      \"lastName\": \"Keller\",\n      \"email\": \"max.keller@example.com\",\n      \"company\": \"Freelancer\",\n      \"phoneNumber\": \"+49-151-4567890\",\n      \"source\": \"YouTube Tutorial\",\n      \"status\": \"New Lead\",\n      \"interestLevel\": \"Low\",\n      \"notes\": \"Hat YouTube-Video zur E-Mail-Automatisierung gesehen\",\n      \"dateAdded\": \"2025-05-07T17:45:00Z\"\n    },\n    {\n      \"id\": 5,\n      \"firstName\": \"Anna\",\n      \"lastName\": \"Fischer\",\n      \"email\": \"anna.fischer@example.com\",\n      \"company\": \"MediCare Solutions\",\n      \"phoneNumber\": \"+49-151-5678901\",\n      \"source\": \"Kontaktformular Website\",\n      \"status\": \"Qualified Lead\",\n      \"interestLevel\": \"High\",\n      \"notes\": \"Sucht Workflow-Automatisierung für Patientendaten, Budget vorhanden\",\n      \"dateAdded\": \"2025-05-09T08:20:00Z\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        6384
+      ],
+      "id": "88087fa1-e8f9-41fe-8c91-01c330c5abf7",
+      "name": "Datensatz A"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"leads\": [\n    {\n      \"id\": 1,\n      \"firstName\": \"Lena\",\n      \"lastName\": \"Meyer\",\n      \"email\": \"lena.meyer@example.com\",\n      \"company\": \"CloudWorks GmbH\",\n      \"phoneNumber\": \"+49-151-0000000\", \n      \"source\": \"Google Ads\",\n      \"status\": \"Qualified Lead\",         \n      \"interestLevel\": \"High\",\n      \"notes\": \"Bereit für Demo\",\n      \"dateAdded\": \"2025-05-01T09:00:00Z\"\n    },\n    {\n      \"id\": 2,\n      \"firstName\": \"Tobias\",\n      \"lastName\": \"Schmidt\",\n      \"email\": \"t.schmidt@example.com\",\n      \"company\": \"FinTech Innovators\",\n      \"phoneNumber\": \"+49-151-2345678\",\n      \"source\": \"Webinar\",\n      \"status\": \"Contacted\",\n      \"interestLevel\": \"Medium\",\n      \"notes\": \"Interessiert an Follow-up\",\n      \"dateAdded\": \"2025-05-03T14:30:00Z\"\n    },\n    {\n      \"id\": 5,\n      \"firstName\": \"Laura\",\n      \"lastName\": \"Neumann\",\n      \"email\": \"laura.neumann@example.com\",\n      \"company\": \"GreenTech Startups\",\n      \"phoneNumber\": \"+49-151-9876543\",\n      \"source\": \"LinkedIn\",\n      \"status\": \"New Lead\",\n      \"interestLevel\": \"High\",\n      \"notes\": \"Kontaktaufnahme über LinkedIn\",\n      \"dateAdded\": \"2025-05-08T10:00:00Z\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        6560
+      ],
+      "id": "1d716009-4bd6-47dc-b74a-cc3a6eaeb240",
+      "name": "Datensatz B"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1312,
+        2512
+      ],
+      "id": "8a32df4c-e75f-4211-b53b-e1493c89592d",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1712,
+        2528
+      ],
+      "id": "b0e9e045-dc96-445b-90a3-9989a94e589b",
+      "name": "Wait",
+      "webhookId": "0a968568-d51d-4731-945f-4f67ce3db0a8"
+    }
+  ],
+  "connections": {
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Tesseract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Speech": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission2": {
+      "main": [
+        [
+          {
+            "node": "ID generieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID generieren": {
+      "main": [
+        [
+          {
+            "node": "Eintragen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "ConvertAPI HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConvertAPI HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Tesseract1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission3": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Datensatz A",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Datensatz B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Account bestimmen": {
+      "main": [
+        [
+          {
+            "node": "ID setzen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Outlook": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Excel 365": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out5": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Datensatz A": {
+      "main": [
+        [
+          {
+            "node": "Split Out5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datensatz B": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "8235a2f3-01ed-4aa8-8665-a2cf7bf111a5",
+  "triggerCount": 0,
+  "tags": []
+}

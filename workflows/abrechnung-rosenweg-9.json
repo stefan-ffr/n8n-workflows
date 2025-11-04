@@ -1,0 +1,86 @@
+{
+  "createdAt": "2025-09-15T10:26:21.452Z",
+  "updatedAt": "2025-09-15T10:36:59.000Z",
+  "id": "BTcrAHK2HNbhoD23",
+  "name": "Abrechnung Rosenweg 9",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Abrechnung Haus Rosenweg 9",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Vorname + Nachname",
+              "placeholder": "Vorname Nachname",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Eigene E-Mail-Adresse",
+              "fieldType": "email",
+              "placeholder": "beispiel@email.invalid",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Projektname",
+              "placeholder": "Nichts",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Rechnung",
+              "fieldType": "file",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Betrag in CHF",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "IBAN",
+              "placeholder": "CH9300762011623852957",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        -16
+      ],
+      "id": "5134e081-17c6-4cf5-85b8-7a89b68247e8",
+      "name": "On form submission",
+      "webhookId": "b698e564-d692-4bfb-8f8a-5d718f5659de"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "deac0c8a-5e82-48ed-855d-db3473bdc560",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-09-15T10:26:21.459Z",
+      "updatedAt": "2025-09-15T10:26:21.459Z",
+      "role": "workflow:owner",
+      "workflowId": "BTcrAHK2HNbhoD23",
+      "projectId": "T0Kc8jG8JyOwMOrR"
+    }
+  ],
+  "tags": []
+}

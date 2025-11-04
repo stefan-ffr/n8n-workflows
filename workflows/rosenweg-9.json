@@ -1,0 +1,154 @@
+{
+  "createdAt": "2025-10-13T10:54:45.666Z",
+  "updatedAt": "2025-10-14T14:14:17.000Z",
+  "id": "fsMrdaEMBijilAJn",
+  "name": "Rosenweg 9",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\", [\"TO\", \"eigentuemer@rosenweg9.ch\"]]"
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        80
+      ],
+      "id": "0fda9632-3960-4e39-ba16-1b0c34912fde",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "0HPTB4TCGNID6HZP",
+          "name": "r9kaiseraugst@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Email Trigger (IMAP)').item.json.metadata['delivered-to'] }}",
+        "toEmail": "={{ $json.wohnungen.erdgeschoss[0]['eigentümer'].email }},{{ $json.wohnungen.erdgeschoss[1]['eigentümer'].email }},{{ $json.wohnungen.erdgeschoss[2]['eigentümer'].email }},{{ $json.wohnungen.obergeschoss_1[0]['eigentümer'].email }},{{ $json.wohnungen.obergeschoss_1[1]['eigentümer'].email }},{{ $json.wohnungen.obergeschoss_1[2]['eigentümer'].email }},{{ $json.wohnungen.obergeschoss_2[0]['eigentümer'].email }},{{ $json.wohnungen.obergeschoss_2[1]['eigentümer'].email }},{{ $json.wohnungen.obergeschoss_2[2]['eigentümer'].email }},{{ $json.sonstiges[0]['eigentümer'].email }}",
+        "subject": "={{ $('Email Trigger (IMAP)').item.json.subject }}",
+        "emailFormat": "both",
+        "text": "={{ $('Email Trigger (IMAP)').item.json.textPlain }}",
+        "html": "={{ $('Email Trigger (IMAP)').item.json.textHtml }}",
+        "options": {
+          "replyTo": "={{ $('Email Trigger (IMAP)').item.json.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        752,
+        80
+      ],
+      "id": "615e1593-9123-4444-9fa8-5c39ba78d1ad",
+      "name": "Send email",
+      "webhookId": "b0f9f53e-4029-4cdd-9300-059d268d010d",
+      "credentials": {
+        "smtp": {
+          "id": "VKQu8VTweGCJRqib",
+          "name": "r9kaiseraugst@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://rosenweg.github.io/Website/kontakte.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        80
+      ],
+      "id": "9d7775aa-5ea0-4cfa-957d-680bf60dd956",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.envelope.from }}",
+        "toEmail": "={{ $('Email Trigger (IMAP)').item.json.from }}",
+        "subject": "Emails abgewiesen oder nicht zugestellt",
+        "html": "=Es wurde nicht an folgende Personen zugestellt, wenn leer hat alles geklappt:\n\n {{ $json.rejected[0] }}\n {{ $json.rejected[1] }}\n {{ $json.rejected[2] }}\n {{ $json.rejected[3] }}\n {{ $json.rejected[4] }}\n {{ $json.rejected[5] }}\n {{ $json.rejected[6] }}\n {{ $json.rejected[7] }}\n {{ $json.rejected[8] }}\n {{ $json.rejected[9] }}\n {{ $json.rejected[10] }}\n\nDiese E-Mail wurde automatisch generiert bei Problemen an technik@rosenweg4303.ch wenden.",
+        "options": {
+          "replyTo": "technik@rosenweg4303.ch"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        80
+      ],
+      "id": "5ed21813-3121-40ef-ac1c-820f0904b530",
+      "name": "Send email1",
+      "webhookId": "cf93083d-ba09-4fd0-b9c7-9db27687411e",
+      "credentials": {
+        "smtp": {
+          "id": "VKQu8VTweGCJRqib",
+          "name": "r9kaiseraugst@gmail.com"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Send email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "eb05ee1f-622c-4f60-b4c3-806ce7e953d5",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-13T10:54:45.669Z",
+      "updatedAt": "2025-10-13T10:54:45.669Z",
+      "role": "workflow:owner",
+      "workflowId": "fsMrdaEMBijilAJn",
+      "projectId": "T0Kc8jG8JyOwMOrR"
+    }
+  ],
+  "tags": []
+}

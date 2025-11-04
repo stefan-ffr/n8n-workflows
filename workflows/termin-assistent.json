@@ -1,0 +1,28 @@
+{
+  "createdAt": "2025-11-03T19:48:25.187Z",
+  "updatedAt": "2025-11-03T19:48:25.187Z",
+  "id": "c9vDzaUTGqiH397J",
+  "name": "Termin-Assistent",
+  "active": false,
+  "isArchived": false,
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "892f930c-339d-44a7-adc5-e2b1ff940f9b",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-11-03T19:48:25.195Z",
+      "updatedAt": "2025-11-03T19:48:25.195Z",
+      "role": "workflow:owner",
+      "workflowId": "c9vDzaUTGqiH397J",
+      "projectId": "T0Kc8jG8JyOwMOrR"
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,124 @@
+{
+  "createdAt": "2025-10-13T10:00:33.264Z",
+  "updatedAt": "2025-10-14T16:13:17.000Z",
+  "id": "3kEPRuvUglTH2TtG",
+  "name": "Rosenweg Kooperation",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "downloadAttachments": true,
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\", [\"TO\", \"ausschuss@rosenweg4303.ch\"]]"
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        -336,
+        16
+      ],
+      "id": "60aca2c8-4b99-45fd-9e88-63c956197d5e",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "te5Eb53t4CvAFRcA",
+          "name": "rosenweg4303@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Email Trigger (IMAP)').item.json.metadata['delivered-to'] }}",
+        "toEmail": "={{ $json.ausschuss.vertreter[0].vertreter[0].email }},{{ $json.ausschuss.vertreter[0].vertreter[1].email }},{{ $json.ausschuss.vertreter[1].vertreter[0].email }},{{ $json.ausschuss.vertreter[1].vertreter[1].email }},{{ $json.ausschuss.vertreter[2].vertreter[0].email_alternativ }},{{ $json.ausschuss.vertreter[2].vertreter[1].email }},{{ $json.ausschuss.vertreter[3].vertreter[0].email }},{{ $json.ausschuss.vertreter[3].vertreter[1].email }},{{ $json.ausschuss.vertreter[4].vertreter[0].email }},{{ $json.ausschuss.vertreter[4].vertreter[1].email }},{{ $json.ausschuss.vertreter[5].vertreter[0].email }},{{ $json.ausschuss.vertreter[5].vertreter[1].email }},{{ $json.ausschuss.vertreter[6].vertreter[0].email }},{{ $json.ausschuss.vertreter[6].vertreter[1].email }},{{ $json.ausschuss.vertreter[7].vertreter[0].email }},{{ $json.hausverwaltung.email }}",
+        "subject": "={{ $('Email Trigger (IMAP)').item.json.subject }}",
+        "emailFormat": "both",
+        "text": "={{ $('Email Trigger (IMAP)').item.json.textPlain }}",
+        "html": "={{ $('Email Trigger (IMAP)').item.json.textHtml }}",
+        "options": {
+          "attachments": "=={{$('Email Trigger (IMAP)').item.json.attachments}}",
+          "replyTo": "={{ $('Email Trigger (IMAP)').item.json.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        592,
+        16
+      ],
+      "id": "d03731ed-7889-4a0f-9973-7f866a552fe0",
+      "name": "Send email",
+      "webhookId": "b0f9f53e-4029-4cdd-9300-059d268d010d",
+      "credentials": {
+        "smtp": {
+          "id": "FFUQZbaHs2Zl3h9l",
+          "name": "rosenweg4303@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://rosenweg.github.io/Website/ausschuss-kontakte.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        16
+      ],
+      "id": "77e4d054-1ccb-4865-849c-9027b36a38ea",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "e6a26ec3-758b-423e-a498-5879b22f6c09",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-13T10:00:33.270Z",
+      "updatedAt": "2025-10-13T10:00:33.270Z",
+      "role": "workflow:owner",
+      "workflowId": "3kEPRuvUglTH2TtG",
+      "projectId": "T0Kc8jG8JyOwMOrR"
+    }
+  ],
+  "tags": []
+}

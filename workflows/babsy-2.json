@@ -1,0 +1,146 @@
+{
+  "createdAt": "2025-11-01T19:52:41.913Z",
+  "updatedAt": "2025-11-01T20:05:52.000Z",
+  "id": "RdnVSF0AWy6dd6Ab",
+  "name": "Babsy 2",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "email-workflow",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        256
+      ],
+      "id": "e2ad6e9c-6b36-496e-8584-e031581e1ba2",
+      "webhookId": "b9964bbf-06c8-408f-b8c1-8373c63c629d"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email",
+              "value": "={{$json.email}}"
+            },
+            {
+              "name": "name",
+              "value": "={{$json.name}}"
+            },
+            {
+              "name": "code",
+              "value": "={{$json.code}}"
+            },
+            {
+              "name": "validUntil",
+              "value": "={{$json.validUntil}}"
+            },
+            {
+              "name": "company",
+              "value": "Mein Unternehmen"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        176,
+        256
+      ],
+      "id": "738d88cd-2e44-4431-bc94-2c94743e0b03"
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "validUntil",
+        "options": {}
+      },
+      "name": "Add One Day",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 1,
+      "position": [
+        176,
+        96
+      ],
+      "id": "7e202b31-b25e-46bc-91f0-7456a026f54f"
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@deine-domain.de",
+        "toEmail": "={{$json.email}}",
+        "subject": "Ihr persönlicher Zugangscode – gültig bis {{$json.validUntil}}",
+        "text": "Hallo {{$json.name}},\n\nIhr Code lautet: {{$json.code}}\nGültig bis: {{$json.validUntil}}\n\nViele Grüße,\n{{$json.company}}",
+        "options": {}
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        432,
+        256
+      ],
+      "id": "2da89a63-1cca-4e13-a7ef-51602691c7ce"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Add One Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add One Day": {
+      "main": [
+        [
+          {
+            "node": "Set Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Data": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "cba1ff1e-74ae-44ed-9037-cd848663742f",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-11-01T19:52:41.918Z",
+      "updatedAt": "2025-11-01T19:52:41.918Z",
+      "role": "workflow:owner",
+      "workflowId": "RdnVSF0AWy6dd6Ab",
+      "projectId": "T0Kc8jG8JyOwMOrR"
+    }
+  ],
+  "tags": []
+}

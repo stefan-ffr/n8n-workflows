@@ -1,0 +1,221 @@
+{
+  "createdAt": "2025-11-01T19:43:09.336Z",
+  "updatedAt": "2025-11-01T20:08:42.000Z",
+  "id": "jIg7ayF7YQkmDuYX",
+  "name": "Babsy",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "668a5802-5da1-4498-9609-3d0c9cb51cde",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3f9d6b44-e7fa-4501-9a0a-83b21fd2dab8",
+      "name": "Webhook",
+      "webhookId": "668a5802-5da1-4498-9609-3d0c9cb51cde"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"headers\"]?.[\"x-api-key\"] || $headers?.[\"x-api-key\"] || '' }}",
+              "value2": "YOUR_SECRET_API_KEY"
+            }
+          ]
+        }
+      },
+      "name": "If API Key",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        48,
+        304
+      ],
+      "id": "64c211a0-0105-47ed-abdc-50d077d0567b"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "to",
+              "value": "={{ $json[\"body\"]?.[\"to\"] || $json?.[\"to\"] || '' }}"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json[\"body\"]?.[\"subject\"] || $json?.[\"subject\"] || 'No subject' }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json[\"body\"]?.[\"message\"] || $json?.[\"message\"] || '' }}"
+            },
+            {
+              "name": "from",
+              "value": "={{ $json[\"body\"]?.[\"from\"] || $json?.[\"from\"] || 'no-reply@example.com' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Email Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        240,
+        240
+      ],
+      "id": "86ee8fd9-6d9d-4456-b314-cd6f45061f25"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        640,
+        240
+      ],
+      "id": "5d16e8ee-914d-40d7-9435-bbc860e7aace"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        384
+      ],
+      "id": "0de8f466-eff3-4025-9110-5998aee955f2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "send-email",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        304
+      ],
+      "id": "92618a9f-7ec9-4842-a290-98c00ac3b753",
+      "webhookId": "32aab12b-eadd-4ecb-afda-33f0942537b6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        240
+      ],
+      "id": "b62c0089-a2ef-4dd9-96d7-156d545cd629",
+      "name": "Send email",
+      "webhookId": "089e5da1-b78f-4490-83e6-efe9a8591c4c",
+      "credentials": {
+        "smtp": {
+          "id": "QcKjtg6kc10W2JO1",
+          "name": "dmarc@juroct.net"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "If API Key": {
+      "main": [
+        [
+          {
+            "node": "Set Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Email Data": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "6ec59b57-83df-40d0-a5a5-38d7f3c196d7",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-11-01T19:43:09.344Z",
+      "updatedAt": "2025-11-01T19:43:09.344Z",
+      "role": "workflow:owner",
+      "workflowId": "jIg7ayF7YQkmDuYX",
+      "projectId": "T0Kc8jG8JyOwMOrR"
+    }
+  ],
+  "tags": []
+}
